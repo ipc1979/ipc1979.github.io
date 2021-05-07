@@ -73,27 +73,15 @@
            vec4 textureColor = texture2D(uSampler, vec2(uv.s, uv.t));         
             
             // **************** EDITAR A PARTIR DE AQUI *******************************
-
-            float angleRadiansX0 = ( -0.5 * PI  );                       
-            float angleRadiansY0 = ( 1.0 * PI  );                       
-            float angleRadiansX = cos(3.0*time) * -0.1 * PI ;
-            float angleRadiansZ = sin(3.0*time) * 0.1 * PI ;
             
             position=vec3(2.0*(uv.x-0.5),0.0,2.0*(uv.y-0.5));            
             
             float mod = sqrt((4.0*((uv.x-0.5)*(uv.x-0.5))+4.0*((uv.y-0.5)*(uv.y-0.5))));
             position+=vec3(0, 1, 0)*(1.0+2.0*(sin(25.0*mod+time*10.0)/(5.0*mod+0.25)))*0.03;
 
-            /*
-            position=rotateZ(angleRadiansZ)*
-                rotateX(angleRadiansX)*
-                position;
-            */
-
             // ************************************************************************
 
             vec4 worldPos = uMMatrix*vec4(position, 1.0);
-            //vec4 worldPos = vec4(position, 1.0);                        
 
             gl_Position = uPMatrix*uVMatrix*worldPos;
 
