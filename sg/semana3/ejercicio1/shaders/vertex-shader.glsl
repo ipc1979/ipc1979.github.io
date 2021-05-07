@@ -79,11 +79,7 @@
             float angleRadiansX = cos(3.0*time) * -0.1 * PI ;
             float angleRadiansZ = sin(3.0*time) * 0.1 * PI ;
             
-            position=rotateZ(angleRadiansZ)*
-                rotateX(angleRadiansX)*
-                rotateY(angleRadiansY0)*
-                rotateX(angleRadiansX0)*
-                vec3(2.0*(uv.x-0.5),2.0*(uv.y-0.5),0.0);             
+            position=vec3(2.0*(uv.x-0.5),0.0,2.0*(uv.y-0.5));             
 
             // ************************************************************************
 
