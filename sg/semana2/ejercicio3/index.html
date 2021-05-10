@@ -404,14 +404,16 @@
             m1=mat4.create(); 
             mat4.rotate(m1,m1,frame*Math.PI/1000,[0,1,0]);    
             mat4.translate(m1,m1,[60,0,0]);    
-            mat4.rotate(m1,m1,(-23)*2*Math.PI/360,[0,1,1]);    
+            mat4.rotate(m1,m1,-frame*Math.PI/1000,[0,1,0]);    
+            mat4.rotate(m1,m1,(23)*2*Math.PI/360,[1,0,0]);    
             mat4.rotate(m1,m1,frame*Math.PI/25,[0,1,0]);    
             setTransform(tierra,m1);
-  
+ 
             // luna
             m2=mat4.create(); 
             mat4.rotate(m2,m2,frame*Math.PI/1000,[0,1,0]);    
             mat4.translate(m2,m2,[60,0,0]);    
+            mat4.rotate(m2,m2,-frame*Math.PI/1000,[0,1,0]);    
             mat4.rotate(m2,m2,frame*Math.PI/50,[0,1,0]);         
             mat4.translate(m2,m2,[20,0,0]);    
             setTransform(luna,m2);  
@@ -420,20 +422,23 @@
             m3=mat4.create();
             mat4.rotate(m3,m3,frame*Math.PI/1000,[0,1,0]);    
             mat4.translate(m3,m3,[60,0,0]);    
-            mat4.rotate(m3,m3,frame*Math.PI/50,[0,1,0]);         
-            mat4.translate(m3,m3,[22,0,0]);    
-            mat4.rotate(m3,m3,(-2)*Math.PI/4,[0,0,1]);    
+            mat4.rotate(m3,m3,-frame*Math.PI/1000,[0,1,0]);    
+            mat4.rotate(m3,m3,frame*Math.PI/50,[0,1,0]);
+            mat4.translate(m3,m3,[20,0,0]);    
+            mat4.rotate(m3,m3,Math.PI/4,[0,0,1]);
+            mat4.translate(m3,m3,[2,0,0]);    
+            mat4.rotate(m3,m3,-Math.PI/2,[0,0,1]);    
             setTransform(apollo,m3);    
 
             // iss
             m4=mat4.create(); 
             mat4.rotate(m4,m4,frame*Math.PI/1000,[0,1,0]);    
             mat4.translate(m4,m4,[60,0,0]);    
-            mat4.rotate(m4,m4,(-23)*2*Math.PI/360,[0,1,1]);    
-            mat4.rotate(m4,m4,frame*Math.PI/50,[0,0,1]);         
+            mat4.rotate(m4,m4,-frame*Math.PI/1000,[0,1,0]);    
+            mat4.rotate(m4,m4,(-90)*2*Math.PI/360,[0,1,0]);    
+            mat4.rotate(m4,m4,-frame*Math.PI/50,[0,0,1]);         
             mat4.translate(m4,m4,[10,0,0]);    
             setTransform(iss,m4);  
-
 
             // *********************************************************************************************
 
