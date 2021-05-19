@@ -41,7 +41,7 @@ function crearGeometria(){
         case 'esfera':
             superficie3D=new Esfera(1);
             break;
-        case 'tuboseniodal':
+        case 'tubosenoidal':
             superficie3D=new TuboSenoidal(0.1,0.2,1,2);
             break;
         default:
