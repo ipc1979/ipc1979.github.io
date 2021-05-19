@@ -36,21 +36,10 @@ function crearGeometria(){
         
     if ( primitiva == 'tubosenoidal' ) {
         superficie3D=new TuboSenoidal(0.1,0.2,1,2);
+    } else if ( primitiva == 'esfera' ) {
+        superficie3D=new Esfera(1);
     } else {
-        switch ( primitiva ) {
-            case 'plano':
-                superficie3D=new Plano(3,3);
-                break;
-            case 'esfera':
-                superficie3D=new Esfera(1);
-                break;
-            case 'tubosenoidal':
-                superficie3D=new TuboSenoidal(0.1,0.2,1,2);
-                break;
-            default:
-                superficie3D=new Plano(3,3);
-                break;             
-        }
+        superficie3D=new Plano(3,3);    
     }
 
     mallaDeTriangulos=generarSuperficie(superficie3D,filas,columnas);
