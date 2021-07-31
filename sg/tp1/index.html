@@ -5,6 +5,10 @@
     <script src="js/webgl-utils.js"></script>
     <script src="js/dat.gui.js"></script>
     <script src="modulo-geometria.js"></script>
+    <script src="gl-operation.js"></script>
+    <script src="formas.js"></script>
+    <script src="curvas.js"></script>
+    <script src="objetos-escena.js"></script>
     <style>
         html{
             height: 100%;
@@ -46,11 +50,11 @@
         var $canvas=$("#myCanvas");
         var aspect=$canvas.width()/$canvas.height();
 
-        var expandeGrua=0.75;
+        var expandeGrua=0;
         var angulo = 0;
-        var distanciaCamara=35;
+        var distanciaCamara=45;
         var alturaCamara=25;
-        
+        var pisosTobogan = 4 ;        
         var lighting="true";
 
         var vertexShaderSource;
@@ -68,13 +72,19 @@
         var rotarCabina = 0 ;
         var rotarPluma = 0 ;
 
+        var largoLinga = 0;
+
         var pisosTramo2 = 5;
         var columnasTramo2 = 6;       
 
         var ventanasAncho = 3;
         var ventanasLargo = 5;       
         var ventanasAnchoTemp = 0;
-        var ventanasLargoTemp = 0;           
+        var ventanasLargoTemp = 0;     
+        
+        var textures=[];
+        var totalTexturas = 6;
+        var texturesCubemap=[];
 
         function initGL(canvas) {
 
@@ -171,22 +181,29 @@
             gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
     
             shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aUv");
-            gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
-    
+            gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);       
+
             shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aNormal");
             gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
     
             shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
             shaderProgram.mMatrixUniform = gl.getUniformLocation(shaderProgram, "uMMatrix");
             shaderProgram.vMatrixUniform = gl.getUniformLocation(shaderProgram, "uVMatrix");
+            shaderProgram.vMatrixUniformInverse = gl.getUniformLocation(shaderProgram, "uVMatrixInverse");
             shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
             shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+            shaderProgram.samplerCubeUniform = gl.getUniformLocation(shaderProgram, "cubeTexture");
 
             // fragment shader
+            shaderProgram.withTexture = gl.getUniformLocation(shaderProgram, "withTexture");
+            shaderProgram.withReflect = gl.getUniformLocation(shaderProgram, "withReflect");
             shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "uUseLighting");
             shaderProgram.ambientColorUniform = gl.getUniformLocation(shaderProgram, "uAmbientColor");
             shaderProgram.lightingDirectionUniform = gl.getUniformLocation(shaderProgram, "uLightPosition");
             shaderProgram.directionalColorUniform = gl.getUniformLocation(shaderProgram, "uDirectionalColor");
+
+            shaderProgram.textureCoordAttributeText = gl.getAttribLocation(shaderProgram, "aUv2");
+            gl.enableVertexAttribArray(shaderProgram.textureCoordAttributeText);                 
         }
         
     
@@ -194,6 +211,9 @@
             
             // vertex shader
             gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, matrizModelado);
+            var matrizVistaInverse = mat4.create();
+            mat4.invert(matrizVistaInverse, matrizVista);
+            gl.uniformMatrix4fv(shaderProgram.vMatrixUniformInverse, false, matrizVistaInverse);
             gl.uniformMatrix4fv(shaderProgram.vMatrixUniform, false, matrizVista);
             gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, matrizProyeccion);
     
@@ -228,10 +248,11 @@
             gl.uniform3f(shaderProgram.ambientColorUniform, 0.6, 0.6, 0.6 );
             gl.uniform3f(shaderProgram.directionalColorUniform, 1.2, 1.1, 0.7);
             gl.uniform1i(shaderProgram.useLightingUniform,(lighting=="true"));
+            gl.uniform1i(shaderProgram.withTexture,false);
             
             // Definimos la ubicación de la camara                        
 
-            mat4.lookAt(matrizVista,
+            var cameraMatriz = mat4.lookAt(matrizVista,
                 vec3.fromValues(
                     distanciaCamara*Math.cos(angulo)-distanciaCamara*Math.sin(angulo),
                     distanciaCamara*Math.sin(angulo)+distanciaCamara*Math.cos(angulo),
@@ -240,8 +261,8 @@
                 vec3.fromValues(0,0,10),
                 vec3.fromValues(0,0,1)
             );
-                
-            var lightPosition = [50,50, 100];  
+
+            var lightPosition = [0,100, 100];  
             gl.uniform3fv(shaderProgram.lightingDirectionUniform, lightPosition);            
             
         }
@@ -282,12 +303,12 @@
                     alturaCamara=30;
                     distanciaCamara=20;
                     break;  
-                case "q": // expendaGrua
-                    expandeGruaAux = expandeGrua + 0.05 ;
-                    expandeGrua = 1 <= expandeGruaAux ? 1 : expandeGruaAux ;                
-                    break;  
                 case "a": // contraeGrua
-                    expandeGruaAux = expandeGrua - 0.05 ;
+                    expandeGruaAux = expandeGrua + 1 ;
+                    expandeGrua = expandeGruaAux <= 10 ? expandeGruaAux : 10 ;                
+                    break;  
+                case "q": // expandeGrua
+                    expandeGruaAux = expandeGrua - 1 ;
                     expandeGrua = expandeGruaAux <= 0 ? 0 : expandeGruaAux ;
                     break; 
                 case "l": // rotarCabina
@@ -299,204 +320,90 @@
                     rotarCabina = rotarCabinaAux <= -1 ? -1 : rotarCabinaAux ;                
                     break;  
                 case "i": // rotarPluma
-                    rotarPlumaAux = rotarPluma + 0.02 ;
+                    rotarPlumaAux = rotarPluma + 0.05 ;
                     rotarPluma = 0.5 <= rotarPlumaAux ? 0.5 : rotarPlumaAux ;                
                     break;  
                 case "k": // rotarPluma
-                    rotarPlumaAux = rotarPluma - 0.02 ;
+                    rotarPlumaAux = rotarPluma - 0.05 ;
                     rotarPluma = rotarPlumaAux <= -0.5 ? -0.5 : rotarPlumaAux ;                
                     break;                      
+                case "s": // contraeLinga
+                    largoLingaAux = largoLinga + 0.01 ;
+                    largoLinga = 0.5 <= largoLingaAux ? 0.5 : largoLingaAux ;                
+                    break;  
+                case "w": // expandeLinga
+                    largoLingaAux = largoLinga - 0.01 ;
+                    largoLinga = largoLingaAux <= -0.5 ? -0.5 : largoLingaAux ;                
+                    break;
             }                 
         });
 
         function tick() {
             requestAnimFrame(tick);
             time+=1/30;
-            
             drawScene();    
 
             var matrizModeladoMundo = mat4.create();
             
             matrizModelado = matrizModeladoMundo ;
             setMatrixUniforms();
-            dibujarGeometria("plano");
-
+            dibujarFormaTextura(new Plano(100,100),textures[1],20,20,100,100);     
+            
             var matrizModeladoEdificio = mat4.create();
             mat4.translate(matrizModeladoEdificio, matrizModeladoMundo,[-10,0,0]);
             Edificio(matrizModeladoEdificio);
             
+            var matrizModeladoTobogan = mat4.create();
+            mat4.translate(matrizModeladoTobogan, matrizModeladoMundo,[-12,-18,0]);
+            Tobogan(matrizModeladoTobogan);
+
             matrizModeladoGrua = mat4.create();
             mat4.translate(matrizModeladoGrua, matrizModeladoMundo,[10,0,0]);
+            setMatrixUniforms();
             Grua(matrizModeladoGrua);
+
         }
          
-        function Grua(matrizGrua) {
+        function initTexture(file){
+            
+            var texture = gl.createTexture();
+            texture.image = new Image();
+            
+            textures.push(texture);
 
-            matrizModeladoGruaBase = mat4.create();
-            matrizModeladoGruaBaseScale = mat4.create();
-            mat4.translate(matrizModeladoGruaBase, matrizGrua,[10,0,0]);
-            mat4.scale(matrizModeladoGruaBaseScale, matrizModeladoGruaBase,[5,5,10]);
-            matrizModelado = matrizModeladoGruaBaseScale ;
-            setMatrixUniforms();
-            dibujarGeometria("cubo");
-
+            texture.image.onload = function () {
+            
+                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true); 					// invierto el ejeY					
+                gl.bindTexture(gl.TEXTURE_2D, texture); 						// activo la textura
                 
-            matrizModeladoGruaCuerpo = mat4.create();
-            matrizModeladoGruaCuerpoScale = mat4.create();
-            mat4.translate(matrizModeladoGruaCuerpo, matrizModeladoGruaBase,[0,0,10]);
-            mat4.scale(matrizModeladoGruaCuerpoScale, matrizModeladoGruaCuerpo,[3,3,10*expandeGrua]); 
-            matrizModelado = matrizModeladoGruaCuerpoScale ;
-            setMatrixUniforms();
-            dibujarGeometria("cubo");
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, texture.image);	// cargo el bitmap en la GPU
+                
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);					// selecciono filtro de magnificacion
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);	// selecciono filtro de minificacion
+                
+                gl.generateMipmap(gl.TEXTURE_2D);		// genero los mipmaps
+                gl.bindTexture(gl.TEXTURE_2D, null);
+                
+                totalTexturas--;
+                if (totalTexturas==0) tick();
+            }
+            texture.image.src = file;
+        }
+
+        function initImage(file){
             
+            var texture = gl.createTexture();
+            texture.image = new Image();
             
-            matrizModeladoGruaExpesion = mat4.create();
-            matrizModeladoGruaExpesionScale = mat4.create(); 
-            mat4.translate(matrizModeladoGruaExpesion, matrizModeladoGruaCuerpo,[0,0,10*expandeGrua]);
-            mat4.scale(matrizModeladoGruaExpesion, matrizModeladoGruaExpesion,[1,1,10*expandeGrua]); 
-            matrizModelado = matrizModeladoGruaExpesion ;
-            setMatrixUniforms();
-            dibujarGeometria("cilindro");
+            textures.push(texture);
 
-            matrizModeladoGruaCabina = mat4.create();
-            matrizModeladoGruaCabinaEscala = mat4.create(); 
-            mat4.translate(matrizModeladoGruaCabina, matrizModeladoGruaCuerpo,[0,0,10*expandeGrua*2]);
-            mat4.rotate(matrizModeladoGruaCabina, matrizModeladoGruaCabina,Math.PI*rotarCabina,[0,0,1]); 
-            mat4.scale(matrizModeladoGruaCabinaEscala, matrizModeladoGruaCabina,[4,4,3]); 
-            matrizModelado = matrizModeladoGruaCabinaEscala;
-            setMatrixUniforms();
-            dibujarGeometria("cubo");
-
-            matrizModeladoGruaTrapecioDer = mat4.create();
-            mat4.translate(matrizModeladoGruaTrapecioDer, matrizModeladoGruaCabina,[0.5,-1,3]);
-            mat4.scale(matrizModeladoGruaTrapecioDer, matrizModeladoGruaTrapecioDer,[0.25,1,2]); 
-            matrizModelado = matrizModeladoGruaTrapecioDer;
-            setMatrixUniforms();
-            dibujarGeometria("trapecio");
-
-            matrizModeladoGruaTrapecioIzq = mat4.create();
-            mat4.translate(matrizModeladoGruaTrapecioIzq, matrizModeladoGruaCabina,[-0.5,-1,3]);
-            mat4.scale(matrizModeladoGruaTrapecioIzq, matrizModeladoGruaTrapecioIzq,[0.25,1,2]); 
-            matrizModelado = matrizModeladoGruaTrapecioIzq;
-            setMatrixUniforms();
-            dibujarGeometria("trapecio");
-
-            matrizModeladoGruaPluma = mat4.create();
-            mat4.translate(matrizModeladoGruaPluma, matrizModeladoGruaCabina,[0,-1,4.5]);
-            mat4.rotate(matrizModeladoGruaPluma, matrizModeladoGruaPluma,0.25*Math.PI*rotarPluma,[1,0,0]); 
-            mat4.translate(matrizModeladoGruaPluma, matrizModeladoGruaPluma,[0,10,0]);
-            mat4.scale(matrizModeladoGruaPluma, matrizModeladoGruaPluma,[0.5,30,0.5]); 
-            matrizModelado = matrizModeladoGruaPluma;
-            setMatrixUniforms();
-            dibujarGeometria("cubo");
-
-
-        }
-
-        function Edificio(matrizEdificio) {
-            if ( ventanasAncho != ventanasAnchoTemp || ventanasLargo != ventanasLargoTemp ) {
-                puntosControlEdificioTramo1 = obtenerPuntosControl(0); 
-                puntosControlEdificioTramo2 = obtenerPuntosControl(2);
-                ventanasAnchoTemp = ventanasAncho;
-                ventanasLargoTemp = ventanasLargo; 
+            texture.image.onload = function () {              
+                totalTexturas--;
+                if (totalTexturas==0) tick();
             }
-            var matrizPiso = mat4.create();
-            BaseEdificio(matrizEdificio);
-            curvaBezier = puntosControlEdificioTramo1;
-            mat4.translate(matrizPiso, matrizEdificio,[0,0,3]);
-            for (var piso = 0 ; piso < pisosTramo1 ; piso++ ) {
-                Loza(matrizPiso);
-                Columnas(matrizPiso,columnasTramo1);
-                Ascensor(matrizPiso);
-                var marcos = obtenerPuntosMarcos(0);
-                marcos.forEach((punto) => {
-                    Marco(matrizPiso,punto);
-                });              
-                mat4.translate(matrizPiso, matrizPiso,[0,0,3]);
-            }
-            Loza(matrizPiso);
-            curvaBezier = puntosControlEdificioTramo2;
-            for (var piso = 0 ; piso < pisosTramo2 ; piso++ ) {
-                Loza(matrizPiso);
-                Columnas(matrizPiso,columnasTramo2); 
-                Ascensor(matrizPiso);
-                var marcos = obtenerPuntosMarcos(2); 
-                marcos.forEach((punto) => {
-                    Marco(matrizPiso,punto);
-                });              
-                mat4.translate(matrizPiso, matrizPiso,[0,0,3]);
-            }
-            Loza(matrizPiso);
-            AscensorTecho(matrizPiso);
-
+            texture.image.src = file;
         }
 
-        function BaseEdificio(matrizPiso) {
-            var matrizModeladoBaseEdificio = mat4.create();
-            mat4.scale(matrizModeladoBaseEdificio, matrizPiso,[2,4,3]);
-            matrizModelado = matrizModeladoBaseEdificio ;            
-            setMatrixUniforms();
-            dibujarGeometria("baseEdificio");              
-            mat4.translate(matrizModeladoBaseEdificio, matrizPiso,[3, 0, 0]);
-            mat4.scale(matrizModeladoBaseEdificio, matrizModeladoBaseEdificio,[4,6,3]);
-            matrizModelado = matrizModeladoBaseEdificio ;            
-            setMatrixUniforms();
-            dibujarGeometria("baseEdificio");            
-            mat4.translate(matrizModeladoBaseEdificio, matrizPiso,[-3, 0, 0]);
-            mat4.scale(matrizModeladoBaseEdificio, matrizModeladoBaseEdificio,[4,6,3]);
-            matrizModelado = matrizModeladoBaseEdificio ;            
-            setMatrixUniforms();
-            dibujarGeometria("baseEdificio");            
-        }
-
-        function Ascensor(matrizPiso) {
-            var matrizModeladoAscensor = mat4.create();
-            mat4.scale(matrizModeladoAscensor, matrizPiso,[2,2,3]);
-            matrizModelado = matrizModeladoAscensor ;            
-            setMatrixUniforms();
-            dibujarGeometria("ascensor");            
-        }
-
-        function AscensorTecho(matrizPiso) {
-            var matrizModeladoAscensor = mat4.create();
-            mat4.scale(matrizModeladoAscensor, matrizPiso,[2,2,1]);
-            matrizModelado = matrizModeladoAscensor ;            
-            setMatrixUniforms();
-            dibujarGeometria("ascensor");              
-        }
-
-        function Marco(matrizPiso,punto) {
-            var matrizModeladoMarco = mat4.create();
-            mat4.translate(matrizModeladoMarco, matrizPiso,[punto.x, punto.y, 0]);
-            mat4.scale(matrizModeladoMarco, matrizModeladoMarco,[0.25,0.25,3]);
-            matrizModelado = matrizModeladoMarco ;
-            setMatrixUniforms();
-            dibujarGeometria("marco");            
-        }
-
-        function Loza(matrizPiso) {
-            matrizModelado = matrizPiso ;
-            setMatrixUniforms();
-            dibujarGeometria("lozaSuperficieInferior");
-            dibujarGeometria("lozaPerfil");
-            matrizModeladoCurvaSup2 = mat4.create();
-            mat4.translate(matrizModeladoCurvaSup2, matrizPiso,[0, 0, 0.5]);
-            matrizModelado = matrizModeladoCurvaSup2 ;
-            setMatrixUniforms();
-            dibujarGeometria("lozaSuperficieSuperior");            
-        }
-
-        function Columnas(matrizPiso,columnas) {
-            var coordenadas = obtenerCoordenadasColumnas(columnas);
-            for ( var n = 0 ; n < coordenadas.length ; n++ ) {
-                var matrizModeladoColumna = mat4.create();
-                mat4.translate(matrizModeladoColumna, matrizModeladoCurvaSup2,[coordenadas[n].x, coordenadas[n].y, 0]);
-                mat4.scale(matrizModeladoColumna, matrizModeladoColumna,[0.5,0.5,3]);
-                matrizModelado = matrizModeladoColumna ;
-                setMatrixUniforms();
-                dibujarGeometria("columna");
-            }              
-        }
 
         function initMenu(){
             var gui = new dat.GUI();
@@ -508,6 +415,7 @@
             gui.add(window, "columnasTramo2",3,10).step(1);
             gui.add(window, "ventanasAncho",3,10).step(1);
             gui.add(window, "ventanasLargo",3,10).step(1);            
+            gui.add(window, "pisosTobogan",1,10).step(1);            
             gui.add(window, "modo",["wireframe","smooth","edges"]);
         }
 
@@ -523,7 +431,25 @@
             $(window).on("resize",onResize);
             initMenu();
             initSuperficies();
-            tick();
+
+            initTexture("img/oxido.jpg");
+			initTexture("img/pasto.jpg");
+            initTexture("img/tierra.jpg");
+            initTexture("img/concreto.jpg");
+            initTexture("img/piso.jpg");
+            initTexture("img/paisaje.jpg");
+            initTexture("img/madera.jpg");
+
+
+
+            /*
+            initImage("img/cubemap/back.jpg");
+            initImage("img/cubemap/bottom.jpg");
+            initImage("img/cubemap/front.jpg");
+            initImage("img/cubemap/left.jpg");
+            initImage("img/cubemap/right.jpg");
+            initImage("img/cubemap/top.jpg");
+            */
 
         }
     

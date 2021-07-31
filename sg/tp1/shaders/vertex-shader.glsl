@@ -4,11 +4,14 @@
         attribute vec3 aPosition;   //posicion (x,y,z)
         attribute vec3 aNormal;     //vector normal (x,y,z)
         attribute vec3 aUv;         //coordenadas de texture (x,y)  x e y (en este caso) van de 0 a 1
+        attribute vec3 aUv2;         //coordenadas de texture (x,y)  x e y (en este caso) van de 0 a 1
+        attribute vec3 atext;         //coordenadas de texture (x,y)  x e y (en este caso) van de 0 a 1
 
         // variables Uniform (son globales a todos los vértices y de solo-lectura)
 
         uniform mat4 uMMatrix;     // matriz de modelado
         uniform mat4 uVMatrix;     // matriz de vista
+        uniform mat4 uVMatrixInverse;     // matriz de vista
         uniform mat4 uPMatrix;     // matriz de proyección
         uniform mat3 uNMatrix;     // matriz de normales
                         
@@ -23,21 +26,25 @@
         // Luego cada programa de fragmentos recibe un valor interpolado de cada varying en funcion de la distancia
         // del pixel a cada uno de los 3 vértices. Se realiza un promedio ponderado
 
+        varying vec4 vCameraPosition;
         varying vec3 vWorldPosition;
-        varying vec3 vNormal;
+        varying vec3 vWorldNormal;
         varying vec3 vUv;                           
+        varying vec3 vUv2;     
         
         void main(void) {
                     
-            vec3 position = aPosition;		
-            vec3 normal = aNormal;	
+            vec3 position = aPosition;
             vec3 uv = aUv;   
-            
+            vec3 uv2 = aUv2;   
+
             vec4 worldPos = uMMatrix*vec4(position, 1.0);                        
 
             gl_Position = uPMatrix*uVMatrix*worldPos;
+            vCameraPosition = uVMatrixInverse*vec4(position, 1.0);
 
             vWorldPosition=worldPos.xyz;              
-            vNormal=normalize(uNMatrix * aNormal);
+            vWorldNormal=normalize(uNMatrix * aNormal);
             vUv=uv;	
+            vUv2=uv2;	// Genera un error en al inicializar los BUFFERS !!!!!!
         }
