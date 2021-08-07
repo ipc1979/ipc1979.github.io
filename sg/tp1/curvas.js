@@ -220,6 +220,12 @@ function CurvaCubicaBezier(u,puntos) {
             x: CBC0(l)*puntos[3].x+CBC1(l)*puntos[4].x+CBC2(l)*puntos[5].x+CBC3(l)*puntos[0].x,
             y: CBC0(l)*puntos[3].y+CBC1(l)*puntos[4].y+CBC2(l)*puntos[5].y+CBC3(l)*puntos[0].y
         };
+    } else {
+        l = 1 ;
+        punto = { 
+            x: CBC0(l)*puntos[3].x+CBC1(l)*puntos[4].x+CBC2(l)*puntos[5].x+CBC3(l)*puntos[0].x,
+            y: CBC0(l)*puntos[3].y+CBC1(l)*puntos[4].y+CBC2(l)*puntos[5].y+CBC3(l)*puntos[0].y
+        };
     }
     return punto ;
 }

@@ -40,17 +40,17 @@
 
             if (withTexture) {
                 if (withReflect) {
-                    color=(uAmbientColor+0.75*uDirectionalColor*max(dot(vWorldNormal.xyz,lightDirection), 0.0))*textureColorReflect.xyz;
+                    color=(uAmbientColor+0.75*uDirectionalColor*max(dot(worldNormal.xyz,lightDirection), 0.0))*textureColorReflect.xyz;
                 } else {
-                    color=(uAmbientColor+0.75*uDirectionalColor*max(dot(vWorldNormal.xyz,lightDirection), 0.0))*textureColor.xyz;
+                    color=(uAmbientColor+0.75*uDirectionalColor*max(dot(worldNormal.xyz,lightDirection), 0.0))*textureColor.xyz;
                 }
             } else {
-                color=(uAmbientColor+0.75*uDirectionalColor*max(dot(vWorldNormal.xyz,lightDirection), 0.0))*colorTexture.xyz;
+                color=(uAmbientColor+0.75*uDirectionalColor*max(dot(worldNormal.xyz,lightDirection), 0.0))*colorTexture.xyz;
             }
 
             if (uUseLighting)
                 gl_FragColor = vec4(color,1.0);
             else
-                gl_FragColor = vec4(0.65, 0.31, 0.15, 1);
+                gl_FragColor = vec4(0.25, 0.25, 0.25, 1);
             
         }

@@ -17,13 +17,13 @@ function Tobogan(matrizModeladoTobogan) {
     mat4.translate(matrizToboganColumnas1, matrizModeladoTobogan,[-20,19.5,0]);
     matrizModelado = matrizToboganColumnas1 ;
     setMatrixUniforms();
-    dibujarFormaTextura(new Cilindro(0.25,pisosTobogan*2+2),textures[6],0.25,1,100,4);
+    dibujarFormaTextura(new CilindroPostes(0.25,pisosTobogan*2+2),textures[6],0.25,1,10,4);
 
     var matrizToboganColumnas2 = mat4.create();
     mat4.translate(matrizToboganColumnas2, matrizModeladoTobogan,[-20,20.5,0]);
     matrizModelado = matrizToboganColumnas2 ;
     setMatrixUniforms();
-    dibujarFormaTextura(new Cilindro(0.25,pisosTobogan*2+2),textures[6],0.25,1,100,4);
+    dibujarFormaTextura(new CilindroPostes(0.25,pisosTobogan*2+2),textures[6],0.25,1,10,4);
 
 
 }
@@ -35,14 +35,14 @@ function Grua(matrizGrua) {
     mat4.translate(matrizModeladoGruaBase, matrizGrua,[10,0,0]);
     matrizModelado = matrizModeladoGruaBase ;
     setMatrixUniforms();
-    dibujarFormaTextura(new Cilindro(5,10),textures[0],2,5,100,4);
+    dibujarFormaTextura(new CilindroBase(5,10),textures[0],2,5,10,4);
         
     matrizModeladoGruaCuerpo = mat4.create();
     matrizModeladoGruaCuerpoScale = mat4.create();
     mat4.translate(matrizModeladoGruaCuerpo, matrizModeladoGruaBase,[0,0,10-expandeGrua]);
     matrizModelado = matrizModeladoGruaCuerpo ;
     setMatrixUniforms();
-    dibujarFormaTextura(new Cilindro(3,10),textures[0],2,5,100,4);
+    dibujarFormaTextura(new CilindroCuerpo(3,10),textures[0],2,5,10,4);
     
     
     matrizModeladoGruaExtension = mat4.create();
@@ -82,7 +82,7 @@ function Grua(matrizGrua) {
     mat4.rotate(matrizModeladoGruaPluma2, matrizModeladoGruaPluma1,-0.25*Math.PI,[0,0,1]); 
     matrizModelado = matrizModeladoGruaPluma2;
     setMatrixUniforms();
-    dibujarFormaTextura(new Cilindro(0.5,30),textures[0],10,1,100,4);
+    dibujarFormaTextura(new CilindroPluma(0.5,30),textures[0],10,1,10,4);
 
     matrizModeladoLinga = mat4.create();
     mat4.translate(matrizModeladoLinga, matrizModeladoGruaPluma1,[0,0,29]);
@@ -112,7 +112,7 @@ function Edificio(matrizEdificio) {
     curvaBezier = puntosControlEdificioTramo1;
     mat4.translate(matrizPiso, matrizEdificio,[0,0,3]);
     for (var piso = 0 ; piso < pisosTramo1 ; piso++ ) {
-        Loza(matrizPiso);
+        LozaT1(matrizPiso);
         Columnas(matrizPiso,columnasTramo1);
         Ascensor(matrizPiso);
         var marcos = obtenerPuntosMarcos(0);
@@ -121,10 +121,23 @@ function Edificio(matrizEdificio) {
         });              
         mat4.translate(matrizPiso, matrizPiso,[0,0,3]);
     }
-    Loza(matrizPiso);
+    LozaT1(matrizPiso);
+    lozaSuperficieSup = {
+        positionBuffer : [],
+        normalBuffer : [],
+        textureBuffer : [],
+        indexBuffer : []
+    };
+
+    lozaSuperficieInf = {
+        positionBuffer : [],
+        normalBuffer : [],
+        textureBuffer : [],
+        indexBuffer : []
+    };    
     curvaBezier = puntosControlEdificioTramo2;
     for (var piso = 0 ; piso < pisosTramo2 ; piso++ ) {
-        Loza(matrizPiso);
+        LozaT2(matrizPiso);
         Columnas(matrizPiso,columnasTramo2); 
         Ascensor(matrizPiso);
         var marcos = obtenerPuntosMarcos(2); 
@@ -133,7 +146,7 @@ function Edificio(matrizEdificio) {
         });              
         mat4.translate(matrizPiso, matrizPiso,[0,0,3]);
     }
-    Loza(matrizPiso);
+    LozaT2(matrizPiso);
     AscensorTecho(matrizPiso);
 
 }
@@ -177,7 +190,7 @@ function Marco(matrizPiso,punto) {
     mat4.translate(matrizModeladoMarco, matrizPiso,[punto.x, punto.y, 0]);
     matrizModelado = matrizModeladoMarco ;
     setMatrixUniforms();
-    dibujarForma(new CilindroColor(0.2,3,[0.25,0.25,0.25]),100,4);
+    dibujarForma(new CilindroColor(0.2,3,[0.25,0.25,0.25]),10,4);
     //dibujarFormaTextura(new Plano(3,3),textures[3],0.5,0.5,100,100);
     mat4.rotate(matrizModeladoMarco, matrizModeladoMarco,0.5*Math.PI,[1,0, 0]);
     if ( punto.tramo == 1 || punto.tramo == 3 ) mat4.rotate(matrizModeladoMarco, matrizModeladoMarco,0.5*Math.PI,[0,1, 0]);
@@ -189,17 +202,30 @@ function Marco(matrizPiso,punto) {
     dibujarFormaReflect(new Plano(3,3),textures[5],1,1,10,10);        
 }
 
-function Loza(matrizPiso) {
+function LozaT1(matrizPiso) {
     matrizModelado = matrizPiso ;
     setMatrixUniforms();
-    dibujarFormaTextura(new LozaSuperficie(-1),textures[4],0.5,0.2,100,100);
+    dibujarFormaTextura(new LozaSuperficieInfT1(),textures[4],0.5,0.2,50,50);
     dibujarGeometria("lozaPerfil");
     matrizModeladoCurvaSup2 = mat4.create();
     mat4.translate(matrizModeladoCurvaSup2, matrizPiso,[0, 0, 0.5]);
     matrizModelado = matrizModeladoCurvaSup2 ;
     setMatrixUniforms();
-    dibujarFormaTextura(new LozaSuperficie(1),textures[4],0.2,0.2,100,100);
+    dibujarFormaTextura(new LozaSuperficieSupT1(),textures[4],0.2,0.2,50,50);
 }
+
+function LozaT2(matrizPiso) {
+    matrizModelado = matrizPiso ;
+    setMatrixUniforms();
+    dibujarFormaTextura(new LozaSuperficieInfT2(),textures[4],0.5,0.2,50,50);
+    dibujarGeometria("lozaPerfil");
+    matrizModeladoCurvaSup2 = mat4.create();
+    mat4.translate(matrizModeladoCurvaSup2, matrizPiso,[0, 0, 0.5]);
+    matrizModelado = matrizModeladoCurvaSup2 ;
+    setMatrixUniforms();
+    dibujarFormaTextura(new LozaSuperficieSupT2(),textures[4],0.2,0.2,50,50);
+}
+
 
 function Columnas(matrizPiso,columnas) {
     var coordenadas = obtenerCoordenadasColumnas(columnas);
@@ -208,6 +234,6 @@ function Columnas(matrizPiso,columnas) {
         mat4.translate(matrizModeladoColumna, matrizModeladoCurvaSup2,[coordenadas[n].x, coordenadas[n].y, 0]);
         matrizModelado = matrizModeladoColumna ;
         setMatrixUniforms();
-        dibujarFormaTextura(new Cilindro(0.5,3),textures[3],0.5,0.5,100,100);
+        dibujarFormaTextura(new CilindroColumna(0.5,3),textures[3],0.5,0.5,10,20);
     }              
 }

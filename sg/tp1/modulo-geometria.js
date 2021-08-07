@@ -6,8 +6,7 @@ var columnas=100;
 
 function initSuperficies() {
 
-    superficie3D=new Plano(100,100);    
-    mallaDeTriangulosPlano=generarSuperficie(superficie3D,filas,columnas);
+    mallaDeTriangulosPlano=generarSuperficie(new Plano(100,100),filas,columnas);
 
     mallaDeTriangulosCubo=generarSuperficieCubo([0.9,0.9,0.3]);
 
@@ -19,10 +18,9 @@ function initSuperficies() {
 
     mallaDeTriangulosTrapecio=generarSuperficieTrapecio([0.9,0.9,0.3]);
 
-    superficie3D=new Cilindro(1,1);
-    mallaDeTriangulosColumna=generarSuperficie(superficie3D,filas,columnas);
+    mallaDeTriangulosColumna=generarSuperficie(new Cilindro(1,1),filas,columnas);
 
-
+    mallaDeTriangulosCurvaExtruida=generarSuperficie(new CurvaExtruida(),filas,columnas);    
 
 }
 
@@ -33,18 +31,8 @@ function dibujarGeometria(tipo){
     } else if ( tipo == 'lozaPerfil' ) {
         superficie3D=new LozaPerfil();
         mallaDeTriangulos=generarSuperficie(superficie3D,filas,columnas);
-    } else if ( tipo == 'lozaExt' ) {
-        superficie3D=new LozaPerfilExt();
-        mallaDeTriangulos=generarSuperficie(superficie3D,filas,columnas);
-    } else if ( tipo == 'lozaSuperficieInferior' ) {
-        superficie3D=new LozaSuperficie(-1);
-        mallaDeTriangulos=generarSuperficie(superficie3D,filas,columnas);
-    } else if ( tipo == 'lozaSuperficieSuperior' ) {
-        superficie3D=new LozaSuperficie(1);
-        mallaDeTriangulos=generarSuperficie(superficie3D,filas,columnas);
     } else if ( tipo == 'curvaExtruida' ) {
-        superficie3D=new CurvaExtruida();
-        mallaDeTriangulos=generarSuperficie(superficie3D,filas,columnas);
+        mallaDeTriangulos=mallaDeTriangulosCurvaExtruida;
     } else if ( tipo == 'cubo' ) {
         mallaDeTriangulos=mallaDeTriangulosCubo;
     } else if ( tipo == 'marco' ) {
@@ -147,45 +135,659 @@ function dibujarFormaTextura(forma,textura,scaleX,scaleY,filas,columnas) {
     positionBuffer = [];
     normalBuffer = [];
     textureBuffer = [];
+    indexBuffer=[]; 
 
-    for (var i=0; i <= filas; i++) {
-        for (var j=0; j <= columnas; j++) {
+    if ( forma instanceof LozaSuperficieSupT1 ) {
+        if ( lozaSuperficieSupT1.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
 
-            var u=i/filas;
-            var v=j/columnas;
+                    var u=i/filas;
+                    var v=j/columnas;
 
-            var pos=forma.getPosicion(u,v);
+                    var pos=forma.getPosicion(u,v);
 
-            positionBuffer.push(pos[0]);
-            positionBuffer.push(pos[1]);
-            positionBuffer.push(pos[2]);
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
 
-            var nrm=forma.getNormal(u,v);
+                    var nrm=forma.getNormal(u,v);
 
-            normalBuffer.push(nrm[0]);
-            normalBuffer.push(nrm[1]);
-            normalBuffer.push(nrm[2]);
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
 
-            var uvs=forma.getCoordenadasTextura(u,v);
+                    var uvs=forma.getCoordenadasTextura(u,v);
 
-            textureBuffer.push(scaleX*uvs[0]);
-            textureBuffer.push(scaleY*uvs[1]);
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            lozaSuperficieSupT1.positionBuffer = positionBuffer;
+            lozaSuperficieSupT1.normalBuffer = normalBuffer;
+            lozaSuperficieSupT1.textureBuffer = textureBuffer;
+            lozaSuperficieSupT1.indexBuffer = indexBuffer;
+            console.log('SUPERFICIE_SUP');
+        } else {
+            positionBuffer = lozaSuperficieSupT1.positionBuffer ;
+            normalBuffer = lozaSuperficieSupT1.normalBuffer ;
+            textureBuffer = lozaSuperficieSupT1.textureBuffer ;
+            indexBuffer = lozaSuperficieSupT1.indexBuffer ;    
         }
     }
+    else if ( forma instanceof LozaSuperficieInfT1 ) {
+        if ( lozaSuperficieInfT1.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
 
-    // Buffer de indices de los triángulos
-    
-    indexBuffer=[];  
+                    var u=i/filas;
+                    var v=j/columnas;
 
-    for (f=0; f < filas; f++) {
-        for (c=0; c < columnas; c++) {
-            indexBuffer.push(f*columnas+c+f);
-            indexBuffer.push((f+1)*columnas+c+f+1);
-            indexBuffer.push(f*columnas+c+f+1);
-            indexBuffer.push(f*columnas+c+f+1);
-            indexBuffer.push((f+1)*columnas+c+f+1);
-            indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            lozaSuperficieInfT1.positionBuffer = positionBuffer;
+            lozaSuperficieInfT1.normalBuffer = normalBuffer;
+            lozaSuperficieInfT1.textureBuffer = textureBuffer;
+            lozaSuperficieInfT1.indexBuffer = indexBuffer;
+            console.log('SUPERFICIE_INF');
+        } else {
+            positionBuffer = lozaSuperficieInfT1.positionBuffer ;
+            normalBuffer = lozaSuperficieInfT1.normalBuffer ;
+            textureBuffer = lozaSuperficieInfT1.textureBuffer ;
+            indexBuffer = lozaSuperficieInfT1.indexBuffer ;    
         }
+    }    
+    else if ( forma instanceof LozaSuperficieSupT2 ) {
+        if ( lozaSuperficieSupT2.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            lozaSuperficieSupT2.positionBuffer = positionBuffer;
+            lozaSuperficieSupT2.normalBuffer = normalBuffer;
+            lozaSuperficieSupT2.textureBuffer = textureBuffer;
+            lozaSuperficieSupT2.indexBuffer = indexBuffer;
+            console.log('SUPERFICIE_SUP');
+        } else {
+            positionBuffer = lozaSuperficieSupT2.positionBuffer ;
+            normalBuffer = lozaSuperficieSupT2.normalBuffer ;
+            textureBuffer = lozaSuperficieSupT2.textureBuffer ;
+            indexBuffer = lozaSuperficieSupT2.indexBuffer ;    
+        }
+    }
+    else if ( forma instanceof LozaSuperficieInfT2 ) {
+        if ( lozaSuperficieInfT2.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            lozaSuperficieInfT2.positionBuffer = positionBuffer;
+            lozaSuperficieInfT2.normalBuffer = normalBuffer;
+            lozaSuperficieInfT2.textureBuffer = textureBuffer;
+            lozaSuperficieInfT2.indexBuffer = indexBuffer;
+            console.log('SUPERFICIE_INF');
+        } else {
+            positionBuffer = lozaSuperficieInfT2.positionBuffer ;
+            normalBuffer = lozaSuperficieInfT2.normalBuffer ;
+            textureBuffer = lozaSuperficieInfT2.textureBuffer ;
+            indexBuffer = lozaSuperficieInfT2.indexBuffer ;    
+        }
+    }    
+    else if ( forma instanceof CilindroColumna ) {
+        if ( cilindroColumnaSuperficie.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            cilindroColumnaSuperficie.positionBuffer = positionBuffer;
+            cilindroColumnaSuperficie.normalBuffer = normalBuffer;
+            cilindroColumnaSuperficie.textureBuffer = textureBuffer;
+            cilindroColumnaSuperficie.indexBuffer = indexBuffer;
+            console.log('COLUMNA_COLUMNA');
+        } else {
+            positionBuffer = cilindroColumnaSuperficie.positionBuffer ;
+            normalBuffer = cilindroColumnaSuperficie.normalBuffer ;
+            textureBuffer = cilindroColumnaSuperficie.textureBuffer ;
+            indexBuffer = cilindroColumnaSuperficie.indexBuffer ;    
+        }
+    }
+    else if ( forma instanceof CilindroPluma ) {
+        if ( cilindroPlumaSuperficie.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            cilindroPlumaSuperficie.positionBuffer = positionBuffer;
+            cilindroPlumaSuperficie.normalBuffer = normalBuffer;
+            cilindroPlumaSuperficie.textureBuffer = textureBuffer;
+            cilindroPlumaSuperficie.indexBuffer = indexBuffer;
+            console.log('COLUMNA_PLUMA');
+        } else {
+            positionBuffer = cilindroPlumaSuperficie.positionBuffer ;
+            normalBuffer = cilindroPlumaSuperficie.normalBuffer ;
+            textureBuffer = cilindroPlumaSuperficie.textureBuffer ;
+            indexBuffer = cilindroPlumaSuperficie.indexBuffer ;    
+        }
+    }    
+    else if ( forma instanceof CilindroBase ) {
+        if ( cilindroBaseSuperficie.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            cilindroBaseSuperficie.positionBuffer = positionBuffer;
+            cilindroBaseSuperficie.normalBuffer = normalBuffer;
+            cilindroBaseSuperficie.textureBuffer = textureBuffer;
+            cilindroBaseSuperficie.indexBuffer = indexBuffer;
+            console.log('COLUMNA_BASE');
+        } else {
+            positionBuffer = cilindroBaseSuperficie.positionBuffer ;
+            normalBuffer = cilindroBaseSuperficie.normalBuffer ;
+            textureBuffer = cilindroBaseSuperficie.textureBuffer ;
+            indexBuffer = cilindroBaseSuperficie.indexBuffer ;    
+        }
+    }  
+    else if ( forma instanceof CilindroCuerpo ) {
+        if ( cilindroCuerpoSuperficie.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            cilindroCuerpoSuperficie.positionBuffer = positionBuffer;
+            cilindroCuerpoSuperficie.normalBuffer = normalBuffer;
+            cilindroCuerpoSuperficie.textureBuffer = textureBuffer;
+            cilindroCuerpoSuperficie.indexBuffer = indexBuffer;
+            console.log('COLUMNA_CUERPO');
+        } else {
+            positionBuffer = cilindroCuerpoSuperficie.positionBuffer ;
+            normalBuffer = cilindroCuerpoSuperficie.normalBuffer ;
+            textureBuffer = cilindroCuerpoSuperficie.textureBuffer ;
+            indexBuffer = cilindroCuerpoSuperficie.indexBuffer ;    
+        }
+    }       
+    else if ( forma instanceof CilindroPostes ) {
+        if ( cilindroPostesSuperficie.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            cilindroPostesSuperficie.positionBuffer = positionBuffer;
+            cilindroPostesSuperficie.normalBuffer = normalBuffer;
+            cilindroPostesSuperficie.textureBuffer = textureBuffer;
+            cilindroPostesSuperficie.indexBuffer = indexBuffer;
+            console.log('COLUMNA_POSTES');
+        } else {
+            positionBuffer = cilindroPostesSuperficie.positionBuffer ;
+            normalBuffer = cilindroPostesSuperficie.normalBuffer ;
+            textureBuffer = cilindroPostesSuperficie.textureBuffer ;
+            indexBuffer = cilindroPostesSuperficie.indexBuffer ;    
+        }
+    }    
+    else if ( forma instanceof Cilindro ) {
+        if ( cilindroSuperficie.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            cilindroSuperficie.positionBuffer = positionBuffer;
+            cilindroSuperficie.normalBuffer = normalBuffer;
+            cilindroSuperficie.textureBuffer = textureBuffer;
+            cilindroSuperficie.indexBuffer = indexBuffer;
+            console.log('COLUMNA');
+        } else {
+            positionBuffer = cilindroSuperficie.positionBuffer ;
+            normalBuffer = cilindroSuperficie.normalBuffer ;
+            textureBuffer = cilindroSuperficie.textureBuffer ;
+            indexBuffer = cilindroSuperficie.indexBuffer ;    
+        }
+    }    
+    else if ( forma instanceof Piso ) {
+        if ( pisoSuperficie.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            pisoSuperficie.positionBuffer = positionBuffer;
+            pisoSuperficie.normalBuffer = normalBuffer;
+            pisoSuperficie.textureBuffer = textureBuffer;
+            pisoSuperficie.indexBuffer = indexBuffer;
+            console.log('PISO');
+        } else {
+            positionBuffer = pisoSuperficie.positionBuffer ;
+            normalBuffer = pisoSuperficie.normalBuffer ;
+            textureBuffer = pisoSuperficie.textureBuffer ;
+            indexBuffer = pisoSuperficie.indexBuffer ;    
+        }
+    } 
+    else if ( forma instanceof Plano ) {
+        if ( planoSuperficie.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            planoSuperficie.positionBuffer = positionBuffer;
+            planoSuperficie.normalBuffer = normalBuffer;
+            planoSuperficie.textureBuffer = textureBuffer;
+            planoSuperficie.indexBuffer = indexBuffer;
+            console.log('PLANO');
+        } else {
+            positionBuffer = planoSuperficie.positionBuffer ;
+            normalBuffer = planoSuperficie.normalBuffer ;
+            textureBuffer = planoSuperficie.textureBuffer ;
+            indexBuffer = planoSuperficie.indexBuffer ;    
+        }
+    }     
+    else {
+        for (var i=0; i <= filas; i++) {
+            for (var j=0; j <= columnas; j++) {
+
+                var u=i/filas;
+                var v=j/columnas;
+
+                var pos=forma.getPosicion(u,v);
+
+                positionBuffer.push(pos[0]);
+                positionBuffer.push(pos[1]);
+                positionBuffer.push(pos[2]);
+
+                var nrm=forma.getNormal(u,v);
+
+                normalBuffer.push(nrm[0]);
+                normalBuffer.push(nrm[1]);
+                normalBuffer.push(nrm[2]);
+
+                var uvs=forma.getCoordenadasTextura(u,v);
+
+                textureBuffer.push(scaleX*uvs[0]);
+                textureBuffer.push(scaleY*uvs[1]);
+            }
+        }
+
+        // Buffer de indices de los triángulos
+        
+        for (f=0; f < filas; f++) {
+            for (c=0; c < columnas; c++) {
+                indexBuffer.push(f*columnas+c+f);
+                indexBuffer.push((f+1)*columnas+c+f+1);
+                indexBuffer.push(f*columnas+c+f+1);
+                indexBuffer.push(f*columnas+c+f+1);
+                indexBuffer.push((f+1)*columnas+c+f+1);
+                indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+            }
+        }
+        console.log('FALTAAAA');
     }
 
     // Creación e Inicialización de los buffers
@@ -237,50 +839,99 @@ function dibujarFormaReflect(forma,textura,scaleX,scaleY,filas,columnas) {
     positionBuffer = [];
     normalBuffer = [];
     textureBuffer = [];
-
-    for (var i=0; i <= filas; i++) {
-        for (var j=0; j <= columnas; j++) {
-
-            var u=i/filas;
-            var v=j/columnas;
-
-            var pos=forma.getPosicion(u,v);
-
-            positionBuffer.push(pos[0]);
-            positionBuffer.push(pos[1]);
-            positionBuffer.push(pos[2]);
-
-            var nrm=forma.getNormal(u,v);
-
-            normalBuffer.push(nrm[0]);
-            normalBuffer.push(nrm[1]);
-            normalBuffer.push(nrm[2]);
-
-            var uvs=forma.getCoordenadasTextura(u,v);
-
-            textureBuffer.push(scaleX*uvs[0]);
-            textureBuffer.push(scaleY*uvs[1]);
-            //textureBuffer.push(0.1*pos[0]);
-            //textureBuffer.push(0.1*pos[1]);
-
-        }
-    }
-
-    // Buffer de indices de los triángulos
-    
     indexBuffer=[];  
 
-    for (f=0; f < filas; f++) {
-        for (c=0; c < columnas; c++) {
-            indexBuffer.push(f*columnas+c+f);
-            indexBuffer.push((f+1)*columnas+c+f+1);
-            indexBuffer.push(f*columnas+c+f+1);
-            indexBuffer.push(f*columnas+c+f+1);
-            indexBuffer.push((f+1)*columnas+c+f+1);
-            indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+    if ( forma instanceof Plano ) {
+        if ( reflectSuperficie.positionBuffer.length == 0 ) {
+            for (var i=0; i <= filas; i++) {
+                for (var j=0; j <= columnas; j++) {
+
+                    var u=i/filas;
+                    var v=j/columnas;
+
+                    var pos=forma.getPosicion(u,v);
+
+                    positionBuffer.push(pos[0]);
+                    positionBuffer.push(pos[1]);
+                    positionBuffer.push(pos[2]);
+
+                    var nrm=forma.getNormal(u,v);
+
+                    normalBuffer.push(nrm[0]);
+                    normalBuffer.push(nrm[1]);
+                    normalBuffer.push(nrm[2]);
+
+                    var uvs=forma.getCoordenadasTextura(u,v);
+
+                    textureBuffer.push(scaleX*uvs[0]);
+                    textureBuffer.push(scaleY*uvs[1]);
+                }
+            }
+
+            // Buffer de indices de los triángulos
+            
+            for (f=0; f < filas; f++) {
+                for (c=0; c < columnas; c++) {
+                    indexBuffer.push(f*columnas+c+f);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push(f*columnas+c+f+1);
+                    indexBuffer.push((f+1)*columnas+c+f+1);
+                    indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+                }
+            }
+            reflectSuperficie.positionBuffer = positionBuffer;
+            reflectSuperficie.normalBuffer = normalBuffer;
+            reflectSuperficie.textureBuffer = textureBuffer;
+            reflectSuperficie.indexBuffer = indexBuffer;
+            console.log('SUPERFICIE_REFLECT');
+        } else {
+            positionBuffer = reflectSuperficie.positionBuffer ;
+            normalBuffer = reflectSuperficie.normalBuffer ;
+            textureBuffer = reflectSuperficie.textureBuffer ;
+            indexBuffer = reflectSuperficie.indexBuffer ;    
         }
     }
+    else {
+        
+        for (var i=0; i <= filas; i++) {
+            for (var j=0; j <= columnas; j++) {
 
+                var u=i/filas;
+                var v=j/columnas;
+
+                var pos=forma.getPosicion(u,v);
+
+                positionBuffer.push(pos[0]);
+                positionBuffer.push(pos[1]);
+                positionBuffer.push(pos[2]);
+
+                var nrm=forma.getNormal(u,v);
+
+                normalBuffer.push(nrm[0]);
+                normalBuffer.push(nrm[1]);
+                normalBuffer.push(nrm[2]);
+
+                var uvs=forma.getCoordenadasTextura(u,v);
+
+                textureBuffer.push(scaleX*uvs[0]);
+                textureBuffer.push(scaleY*uvs[1]);
+            }
+        }
+
+        // Buffer de indices de los triángulos
+        
+        for (f=0; f < filas; f++) {
+            for (c=0; c < columnas; c++) {
+                indexBuffer.push(f*columnas+c+f);
+                indexBuffer.push((f+1)*columnas+c+f+1);
+                indexBuffer.push(f*columnas+c+f+1);
+                indexBuffer.push(f*columnas+c+f+1);
+                indexBuffer.push((f+1)*columnas+c+f+1);
+                indexBuffer.push(((f+1)*columnas+c+f+1)+(f*columnas+c+f+1)-(f*columnas+c+f));
+            }
+        }
+    }
 
     // Creación e Inicialización de los buffers
     webgl_position_buffer = gl.createBuffer();

@@ -1,3 +1,21 @@
+function Piso(ancho,largo){
+
+    this.getPosicion=function(u,v){
+        var x=(u-0.5)*ancho;
+        var y=(v-0.5)*largo;
+        return [x,y,0];
+    }
+
+    this.getNormal=function(u,v){
+        return [2,2,1];
+    }
+
+    // Cambia la posicion en la textura !!!!
+    this.getCoordenadasTextura=function(u,v){
+        return [u,v];
+    }
+}
+
 function Plano(ancho,largo){
 
     this.getPosicion=function(u,v){
@@ -7,7 +25,7 @@ function Plano(ancho,largo){
     }
 
     this.getNormal=function(u,v){
-        return [0,0,1];
+        return [2,2,1];
     }
 
     // Cambia la posicion en la textura !!!!
@@ -16,7 +34,104 @@ function Plano(ancho,largo){
     }
 }
 
+
 function Cilindro(radio,altura){
+
+    this.getPosicion=function(u,v){
+        sin_v = Math.sin(2*Math.PI*v)
+        cos_v = Math.cos(2*Math.PI*v)
+        var x=sin_v*radio;
+        var y=cos_v*radio;        
+        return [x,y,altura*u];
+    }
+
+    this.getNormal=function(u,v){
+        return [Math.sin(2*Math.PI*v),Math.cos(2*Math.PI*v),0];
+    }
+
+    this.getCoordenadasTextura=function(u,v){
+        return [u,v];
+    }
+}
+
+function CilindroPluma(radio,altura){
+
+    this.getPosicion=function(u,v){
+        sin_v = Math.sin(2*Math.PI*v)
+        cos_v = Math.cos(2*Math.PI*v)
+        var x=sin_v*radio;
+        var y=cos_v*radio;        
+        return [x,y,altura*u];
+    }
+
+    this.getNormal=function(u,v){
+        return [Math.sin(2*Math.PI*v),Math.cos(2*Math.PI*v),0];
+    }
+
+    this.getCoordenadasTextura=function(u,v){
+        return [u,v];
+    }
+}
+
+function CilindroPostes(radio,altura){
+
+    this.getPosicion=function(u,v){
+        sin_v = Math.sin(2*Math.PI*v)
+        cos_v = Math.cos(2*Math.PI*v)
+        var x=sin_v*radio;
+        var y=cos_v*radio;        
+        return [x,y,altura*u];
+    }
+
+    this.getNormal=function(u,v){
+        return [Math.sin(2*Math.PI*v),Math.cos(2*Math.PI*v),0];
+    }
+
+    this.getCoordenadasTextura=function(u,v){
+        return [u,v];
+    }
+}
+
+function CilindroCuerpo(radio,altura){
+
+    this.getPosicion=function(u,v){
+        sin_v = Math.sin(2*Math.PI*v)
+        cos_v = Math.cos(2*Math.PI*v)
+        var x=sin_v*radio;
+        var y=cos_v*radio;        
+        return [x,y,altura*u];
+    }
+
+    this.getNormal=function(u,v){
+        return [Math.sin(2*Math.PI*v),Math.cos(2*Math.PI*v),0];
+    }
+
+    this.getCoordenadasTextura=function(u,v){
+        return [u,v];
+    }
+}
+
+function CilindroBase(radio,altura){
+
+    this.getPosicion=function(u,v){
+        sin_v = Math.sin(2*Math.PI*v)
+        cos_v = Math.cos(2*Math.PI*v)
+        var x=sin_v*radio;
+        var y=cos_v*radio;        
+        return [x,y,altura*u];
+    }
+
+    this.getNormal=function(u,v){
+        return [Math.sin(2*Math.PI*v),Math.cos(2*Math.PI*v),0];
+    }
+
+    this.getCoordenadasTextura=function(u,v){
+        return [u,v];
+    }
+}
+
+
+function CilindroColumna(radio,altura){
 
     this.getPosicion=function(u,v){
         sin_v = Math.sin(2*Math.PI*v)
@@ -54,7 +169,7 @@ function CilindroColor(radio,altura,color){
     }
 }
 
-function LozaSuperficie(normal){
+function LozaSuperficieSupT1(){
 
     this.getPosicion=function(u,v){        
         punto = CurvaCuadratica(u,curvaBezier);
@@ -62,7 +177,7 @@ function LozaSuperficie(normal){
     }
 
     this.getNormal=function(u,v){
-        return [0,0,normal];
+        return [0,0,1];
     }
 
     this.getCoordenadasTextura=function(u,v){
@@ -70,6 +185,59 @@ function LozaSuperficie(normal){
         return [v*punto.x,v*punto.y];
     }
 }
+
+function LozaSuperficieInfT1(){
+
+    this.getPosicion=function(u,v){        
+        punto = CurvaCuadratica(u,curvaBezier);
+        return [v*punto.x,v*punto.y,0];
+    }
+
+    this.getNormal=function(u,v){
+        return [0,0,-1];
+    }
+
+    this.getCoordenadasTextura=function(u,v){
+        punto = CurvaCuadratica(u,curvaBezier);
+        return [v*punto.x,v*punto.y];
+    }
+}
+
+function LozaSuperficieSupT2(){
+
+    this.getPosicion=function(u,v){        
+        punto = CurvaCuadratica(u,curvaBezier);
+        return [v*punto.x,v*punto.y,0];
+    }
+
+    this.getNormal=function(u,v){
+        return [0,0,1];
+    }
+
+    this.getCoordenadasTextura=function(u,v){
+        punto = CurvaCuadratica(u,curvaBezier);
+        return [v*punto.x,v*punto.y];
+    }
+}
+
+function LozaSuperficieInfT2(){
+
+    this.getPosicion=function(u,v){        
+        punto = CurvaCuadratica(u,curvaBezier);
+        return [v*punto.x,v*punto.y,0];
+    }
+
+    this.getNormal=function(u,v){
+        return [0,0,-1];
+    }
+
+    this.getCoordenadasTextura=function(u,v){
+        punto = CurvaCuadratica(u,curvaBezier);
+        return [v*punto.x,v*punto.y];
+    }
+}
+
+
 
 function CurvaExtruida(normal){
 
@@ -123,14 +291,14 @@ function CurvaExtruida(normal){
     }
 
     this.getNormal=function(u,v){
-        puntoIni = CurvaCuadraticaBezier(v,puntosBezierCuadratica);
-        puntoFin = CurvaCuadraticaBezier(v+0.01,puntosBezierCuadratica);
+        puntoIni = CurvaCubicaBezier(u,puntosBezierCubica);
+        puntoFin = CurvaCubicaBezier(u+0.01,puntosBezierCubica);
         punto = diferenciaPuntos(puntoFin,puntoIni);
-        vectorNormal = obtenerNormal(
+        vectorNormal = obtenerNormalTobogan(
             { x: punto.x, y: punto.y, z: 0 },
-            { x: 0, y: 0, z: 1 }
+            Math.PI
         );
-        return [vectorNormal.x,vectorNormal.y,vectorNormal.z];
+        return [-vectorNormal.x,-vectorNormal.y,-vectorNormal.z];
     }
 
     this.getCoordenadasTextura=function(u,v){

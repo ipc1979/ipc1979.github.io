@@ -81,10 +81,112 @@
         var ventanasLargo = 5;       
         var ventanasAnchoTemp = 0;
         var ventanasLargoTemp = 0;     
+        var ventanasAnchoPast = 0;
+        var ventanasLargoPast = 0;     
         
         var textures=[];
         var totalTexturas = 6;
         var texturesCubemap=[];
+
+        var puntosControlEdificioTramo1 ; 
+        var puntosControlEdificioTramo2 ;        
+
+        var lightx = 20 ;
+        var lighty = 20 ;
+        var lightz = 10 ;
+
+        var lozaSuperficieSupT1 = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+        var lozaSuperficieInfT1 = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+            var lozaSuperficieSupT2 = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+        var lozaSuperficieInfT2 = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+
+        var cilindroColumnaSuperficie = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+            var cilindroPlumaSuperficie = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+            var cilindroBaseSuperficie = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+            var cilindroCuerpoSuperficie = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+            var cilindroPostesSuperficie = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+
+            var cilindroSuperficie = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+            var pisoSuperficie = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+            var planoSuperficie = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+
+
+        var reflectSuperficie = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
 
         function initGL(canvas) {
 
@@ -239,7 +341,7 @@
     
             // Se configura la matriz de proyección
             mat4.identity(matrizProyeccion);
-            mat4.perspective(matrizProyeccion, 30, aspect, 0.1, 100.0);
+            mat4.perspective(matrizProyeccion, 30, aspect, 0.1, 150.0);
             mat4.scale(matrizProyeccion,matrizProyeccion,[1,-1,1]); // parche para hacer un flip de Y, parece haber un bug en glmatrix
                
             // Se inicializan las variables asociadas con la Iluminación
@@ -262,7 +364,7 @@
                 vec3.fromValues(0,0,1)
             );
 
-            var lightPosition = [0,100, 100];  
+            var lightPosition = [lightx,lighty,lightz];  
             gl.uniform3fv(shaderProgram.lightingDirectionUniform, lightPosition);            
             
         }
@@ -296,6 +398,7 @@
                     orbital=true;
                     break;
                 case "2": // drone
+                    orbital=false;
                     break;                           
                 case "3": // grua
                     orbital=false;
@@ -338,7 +441,57 @@
             }                 
         });
 
+        function limpiaSuperficies() {
+
+            if ( ventanasAncho != ventanasAnchoPast || 
+                 ventanasLargo != ventanasLargoPast ) {
+
+                lozaSuperficieSupT1 = {
+                    positionBuffer : [],
+                    normalBuffer : [],
+                    textureBuffer : [],
+                    indexBuffer : []
+                };
+
+                lozaSuperficieInfT1 = {
+                    positionBuffer : [],
+                    normalBuffer : [],
+                    textureBuffer : [],
+                    indexBuffer : []
+                };
+
+                lozaSuperficieSupT2 = {
+                    positionBuffer : [],
+                    normalBuffer : [],
+                    textureBuffer : [],
+                    indexBuffer : []
+                };
+
+                lozaSuperficieInfT2 = {
+                    positionBuffer : [],
+                    normalBuffer : [],
+                    textureBuffer : [],
+                    indexBuffer : []
+                };
+                
+                ventanasAnchoPast = ventanasAncho ;
+                ventanasLargoPast = ventanasLargo ;
+            }
+
+            cilindroSuperficie = {
+                positionBuffer : [],
+                normalBuffer : [],
+                textureBuffer : [],
+                indexBuffer : []
+            };
+          
+        }
+
+
         function tick() {
+  
+            limpiaSuperficies();          
+
             requestAnimFrame(tick);
             time+=1/30;
             drawScene();    
@@ -347,8 +500,8 @@
             
             matrizModelado = matrizModeladoMundo ;
             setMatrixUniforms();
-            dibujarFormaTextura(new Plano(100,100),textures[1],20,20,100,100);     
-            
+            dibujarFormaTextura(new Piso(100,100),textures[1],20,20,100,100);
+
             var matrizModeladoEdificio = mat4.create();
             mat4.translate(matrizModeladoEdificio, matrizModeladoMundo,[-10,0,0]);
             Edificio(matrizModeladoEdificio);
@@ -358,6 +511,7 @@
             Tobogan(matrizModeladoTobogan);
 
             matrizModeladoGrua = mat4.create();
+            matrizModeladoGruaGiro = mat4.create();
             mat4.translate(matrizModeladoGrua, matrizModeladoMundo,[10,0,0]);
             setMatrixUniforms();
             Grua(matrizModeladoGrua);
@@ -415,7 +569,10 @@
             gui.add(window, "columnasTramo2",3,10).step(1);
             gui.add(window, "ventanasAncho",3,10).step(1);
             gui.add(window, "ventanasLargo",3,10).step(1);            
-            gui.add(window, "pisosTobogan",1,10).step(1);            
+            gui.add(window, "pisosTobogan",1,10).step(1);
+            gui.add(window, "lightx",-50,50).step(1);            
+            gui.add(window, "lighty",-50,50).step(1);            
+            gui.add(window, "lightz",0,100).step(1);            
             gui.add(window, "modo",["wireframe","smooth","edges"]);
         }
 
