@@ -1,20 +1,3 @@
-function Piso(ancho,largo){
-
-    this.getPosicion=function(u,v){
-        var x=(u-0.5)*ancho;
-        var y=(v-0.5)*largo;
-        return [x,y,0];
-    }
-
-    this.getNormal=function(u,v){
-        return [2,2,1];
-    }
-
-    // Cambia la posicion en la textura !!!!
-    this.getCoordenadasTextura=function(u,v){
-        return [u,v];
-    }
-}
 
 function Plano(ancho,largo){
 
@@ -34,6 +17,23 @@ function Plano(ancho,largo){
     }
 }
 
+function Piso(ancho,largo){
+
+    this.getPosicion=function(u,v){
+        var x=(u-0.5)*ancho;
+        var y=(v-0.5)*largo;
+        return [x,y,0];
+    }
+
+    this.getNormal=function(u,v){
+        return [2,2,1];
+    }
+
+    // Cambia la posicion en la textura !!!!
+    this.getCoordenadasTextura=function(u,v){
+        return [u,v];
+    }
+}
 
 function Cilindro(radio,altura){
 
