@@ -26,7 +26,7 @@ function Piso(ancho,largo){
     }
 
     this.getNormal=function(u,v){
-        return [2,2,1];
+        return [0,0,1];
     }
 
     // Cambia la posicion en la textura !!!!
