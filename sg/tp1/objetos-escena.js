@@ -122,19 +122,6 @@ function Edificio(matrizEdificio) {
         mat4.translate(matrizPiso, matrizPiso,[0,0,3]);
     }
     LozaT1(matrizPiso);
-    lozaSuperficieSup = {
-        positionBuffer : [],
-        normalBuffer : [],
-        textureBuffer : [],
-        indexBuffer : []
-    };
-
-    lozaSuperficieInf = {
-        positionBuffer : [],
-        normalBuffer : [],
-        textureBuffer : [],
-        indexBuffer : []
-    };    
     curvaBezier = puntosControlEdificioTramo2;
     for (var piso = 0 ; piso < pisosTramo2 ; piso++ ) {
         LozaT2(matrizPiso);
@@ -205,25 +192,25 @@ function Marco(matrizPiso,punto) {
 function LozaT1(matrizPiso) {
     matrizModelado = matrizPiso ;
     setMatrixUniforms();
-    dibujarFormaTextura(new LozaSuperficieInfT1(),textures[4],0.5,0.2,50,50);
+    dibujarFormaTextura(new LozaSuperficieInfT1(),textures[4],0.5,0.2,100,100);
     dibujarGeometria("lozaPerfil");
     matrizModeladoCurvaSup2 = mat4.create();
     mat4.translate(matrizModeladoCurvaSup2, matrizPiso,[0, 0, 0.5]);
     matrizModelado = matrizModeladoCurvaSup2 ;
     setMatrixUniforms();
-    dibujarFormaTextura(new LozaSuperficieSupT1(),textures[4],0.2,0.2,50,50);
+    dibujarFormaTextura(new LozaSuperficieSupT1(),textures[4],0.2,0.2,100,100);
 }
 
 function LozaT2(matrizPiso) {
     matrizModelado = matrizPiso ;
     setMatrixUniforms();
-    dibujarFormaTextura(new LozaSuperficieInfT2(),textures[4],0.5,0.2,50,50);
+    dibujarFormaTextura(new LozaSuperficieInfT2(),textures[4],0.5,0.2,100,100);
     dibujarGeometria("lozaPerfil");
     matrizModeladoCurvaSup2 = mat4.create();
     mat4.translate(matrizModeladoCurvaSup2, matrizPiso,[0, 0, 0.5]);
     matrizModelado = matrizModeladoCurvaSup2 ;
     setMatrixUniforms();
-    dibujarFormaTextura(new LozaSuperficieSupT2(),textures[4],0.2,0.2,50,50);
+    dibujarFormaTextura(new LozaSuperficieSupT2(),textures[4],0.2,0.2,100,100);
 }
 
 
