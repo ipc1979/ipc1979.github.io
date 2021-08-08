@@ -25,7 +25,6 @@ function Tobogan(matrizModeladoTobogan) {
     setMatrixUniforms();
     dibujarFormaTextura(new CilindroPostes(0.25,pisosTobogan*2+2),textures[6],0.25,1,10,4);
 
-
 }
 
 function Grua(matrizGrua) {

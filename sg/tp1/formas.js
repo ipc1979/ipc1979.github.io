@@ -8,7 +8,7 @@ function Plano(ancho,largo){
     }
 
     this.getNormal=function(u,v){
-        return [2,2,1];
+        return [0,0,-1];
     }
 
     // Cambia la posicion en la textura !!!!
@@ -291,14 +291,39 @@ function CurvaExtruida(normal){
     }
 
     this.getNormal=function(u,v){
-        puntoIni = CurvaCubicaBezier(u,puntosBezierCubica);
-        puntoFin = CurvaCubicaBezier(u+0.01,puntosBezierCubica);
-        punto = diferenciaPuntos(puntoFin,puntoIni);
-        vectorNormal = obtenerNormalTobogan(
-            { x: punto.x, y: punto.y, z: 0 },
-            Math.PI
-        );
-        return [-vectorNormal.x,-vectorNormal.y,-vectorNormal.z];
+        var punto = CurvaCuadraticaBezier(v,puntosBezierCuadratica);
+        var alpha = -Math.atan2(punto.x, punto.y);
+        punto = CurvaCubicaBezier(u,puntosBezierCubica);
+        puntoIni = { x: 0 , y: punto.x , z: punto.y };
+        punto = CurvaCubicaBezier(u+0.01,puntosBezierCubica);
+        puntoFin = { x: 0 , y: punto.x , z: punto.y };
+        punto = { x: 0 , y: puntoFin.y - puntoIni.y, z: puntoFin.z - puntoIni.z };
+        var puntoGiroNormal;
+        if ( 0.5 <= u ) {   
+            beta = -0.5 * Math.PI ;
+            puntoGiroNormal = [
+                punto.x,
+                punto.y*Math.cos(beta) - punto.z*Math.sin(beta),
+                punto.y*Math.sin(beta) + punto.z*Math.cos(beta),
+            ]; 
+        } else {
+            beta = -0.5 * Math.PI ;
+            puntoGiroNormal = [
+                punto.x,
+                punto.y*Math.cos(beta) - punto.z*Math.sin(beta),
+                punto.y*Math.sin(beta) + punto.z*Math.cos(beta),
+            ]; 
+        }       
+        //console.log(puntoGiroNormal);         
+        var curvaGiroAlpha = [
+            puntoGiroNormal[0]*Math.cos(alpha) - puntoGiroNormal[1]*Math.sin(alpha),
+            puntoGiroNormal[0]*Math.sin(alpha) + puntoGiroNormal[1]*Math.cos(alpha),
+            puntoGiroNormal[2]
+        ];       
+        //console.log(curvaGiroAlpha);  
+        //return [punto.x,punto.y,punto.z];
+        //return [puntoGiroNormal[0],puntoGiroNormal[1],puntoGiroNormal[2]];
+        return [curvaGiroAlpha[0],curvaGiroAlpha[1],curvaGiroAlpha[2]];
     }
 
     this.getCoordenadasTextura=function(u,v){

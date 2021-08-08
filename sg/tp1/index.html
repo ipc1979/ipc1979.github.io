@@ -55,6 +55,7 @@
         var distanciaCamara=45;
         var alturaCamara=25;
         var pisosTobogan = 4 ;        
+        var pisosToboganPast = 0 ;        
         var lighting="true";
 
         var vertexShaderSource;
@@ -485,6 +486,17 @@
                 indexBuffer : []
             };
           
+            if ( pisosTobogan != pisosToboganPast ) {
+                cilindroPostesSuperficie = {
+                    positionBuffer : [],
+                    normalBuffer : [],
+                    textureBuffer : [],
+                    indexBuffer : []
+                };                
+                pisosToboganPast = pisosTobogan ;
+            }
+
+
         }
 
 
