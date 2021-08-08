@@ -298,31 +298,17 @@ function CurvaExtruida(normal){
         punto = CurvaCubicaBezier(u+0.01,puntosBezierCubica);
         puntoFin = { x: 0 , y: punto.x , z: punto.y };
         punto = { x: 0 , y: puntoFin.y - puntoIni.y, z: puntoFin.z - puntoIni.z };
-        var puntoGiroNormal;
-        if ( 0.5 <= u ) {   
-            beta = -0.5 * Math.PI ;
-            puntoGiroNormal = [
-                punto.x,
-                punto.y*Math.cos(beta) - punto.z*Math.sin(beta),
-                punto.y*Math.sin(beta) + punto.z*Math.cos(beta),
-            ]; 
-        } else {
-            beta = -0.5 * Math.PI ;
-            puntoGiroNormal = [
-                punto.x,
-                punto.y*Math.cos(beta) - punto.z*Math.sin(beta),
-                punto.y*Math.sin(beta) + punto.z*Math.cos(beta),
-            ]; 
-        }       
-        //console.log(puntoGiroNormal);         
+        beta = -0.5 * Math.PI ;
+        var puntoGiroNormal = [
+            punto.x,
+            punto.y*Math.cos(beta) - punto.z*Math.sin(beta),
+            punto.y*Math.sin(beta) + punto.z*Math.cos(beta),
+        ];         
         var curvaGiroAlpha = [
             puntoGiroNormal[0]*Math.cos(alpha) - puntoGiroNormal[1]*Math.sin(alpha),
             puntoGiroNormal[0]*Math.sin(alpha) + puntoGiroNormal[1]*Math.cos(alpha),
             puntoGiroNormal[2]
         ];       
-        //console.log(curvaGiroAlpha);  
-        //return [punto.x,punto.y,punto.z];
-        //return [puntoGiroNormal[0],puntoGiroNormal[1],puntoGiroNormal[2]];
         return [curvaGiroAlpha[0],curvaGiroAlpha[1],curvaGiroAlpha[2]];
     }
 
