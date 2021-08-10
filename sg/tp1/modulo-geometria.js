@@ -30,7 +30,7 @@ function dibujarGeometria(tipo){
         mallaDeTriangulos=mallaDeTriangulosPlano;
     } else if ( tipo == 'lozaPerfil' ) {
         superficie3D=new LozaPerfil();
-        mallaDeTriangulos=generarSuperficie(superficie3D,filas,columnas);
+        mallaDeTriangulos=generarSuperficie(superficie3D,1,100);
     } else if ( tipo == 'curvaExtruida' ) {
         mallaDeTriangulos=mallaDeTriangulosCurvaExtruida;
     } else if ( tipo == 'cubo' ) {
