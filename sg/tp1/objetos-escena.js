@@ -34,15 +34,14 @@ function Grua(matrizGrua) {
     mat4.translate(matrizModeladoGruaBase, matrizGrua,[10,0,0]);
     matrizModelado = matrizModeladoGruaBase ;
     setMatrixUniforms();
-    dibujarFormaTextura(new CilindroBase(5,10),textures[0],2,5,10,4);
+    generarSuperficieCubov3(6,10,textures[0]);
         
     matrizModeladoGruaCuerpo = mat4.create();
     matrizModeladoGruaCuerpoScale = mat4.create();
     mat4.translate(matrizModeladoGruaCuerpo, matrizModeladoGruaBase,[0,0,10-expandeGrua]);
     matrizModelado = matrizModeladoGruaCuerpo ;
     setMatrixUniforms();
-    dibujarFormaTextura(new CilindroCuerpo(3,10),textures[0],2,5,10,4);
-    
+    generarSuperficieCubov3(4,10,textures[0]);    
     
     matrizModeladoGruaExtension = mat4.create();
     matrizModeladoGruaExpesionScale = mat4.create(); 
@@ -55,10 +54,9 @@ function Grua(matrizGrua) {
     matrizModeladoGruaCabinaEscala = mat4.create(); 
     mat4.translate(matrizModeladoGruaCabina, matrizModeladoGruaCuerpo,[0,0,20-expandeGrua*1]);
     mat4.rotate(matrizModeladoGruaCabina, matrizModeladoGruaCabina,Math.PI*rotarCabina,[0,0,1]); 
-    mat4.scale(matrizModeladoGruaCabinaEscala, matrizModeladoGruaCabina,[4,4,3]); 
-    matrizModelado = matrizModeladoGruaCabinaEscala;
+    matrizModelado = matrizModeladoGruaCabina;
     setMatrixUniforms();
-    dibujarGeometria("cubo");
+    generarSuperficieCubov3(4,3,textures[0]);
 
     matrizModeladoGruaTrapecioDer = mat4.create();
     mat4.translate(matrizModeladoGruaTrapecioDer, matrizModeladoGruaCabina,[0.5,-1,3]);
@@ -78,10 +76,9 @@ function Grua(matrizGrua) {
     matrizModeladoGruaPluma2 = mat4.create();
     mat4.translate(matrizModeladoGruaPluma1, matrizModeladoGruaCabina,[0,0,4.5]);
     mat4.rotate(matrizModeladoGruaPluma1, matrizModeladoGruaPluma1,-0.5*Math.PI+rotarPluma,[1,0,0]); 
-    mat4.rotate(matrizModeladoGruaPluma2, matrizModeladoGruaPluma1,-0.25*Math.PI,[0,0,1]); 
-    matrizModelado = matrizModeladoGruaPluma2;
+    matrizModelado = matrizModeladoGruaPluma1;
     setMatrixUniforms();
-    dibujarFormaTextura(new CilindroPluma(0.5,30),textures[0],10,1,10,4);
+    generarSuperficieCubov3(0.5,30,textures[0]);
 
     matrizModeladoLinga = mat4.create();
     mat4.translate(matrizModeladoLinga, matrizModeladoGruaPluma1,[0,0,29]);

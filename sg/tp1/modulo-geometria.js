@@ -8,7 +8,7 @@ function initSuperficies() {
 
     mallaDeTriangulosPlano=generarSuperficie(new Plano(100,100),filas,columnas);
 
-    mallaDeTriangulosCubo=generarSuperficieCubo([0.9,0.9,0.3]);
+    mallaDeTriangulosCubo=generarSuperficieCubov2([0.9,0.9,0.3]);
 
     mallaDeTriangulosMarco=generarSuperficieCubo([0.25,0.25,0.25]);
 
@@ -801,12 +801,6 @@ function dibujarFormaTextura(forma,textura,scaleX,scaleY,filas,columnas) {
     gl.bindBuffer(gl.ARRAY_BUFFER, webgl_normal_buffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalBuffer), gl.STATIC_DRAW);
     gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-
-    // Creación e Inicialización de los buffers
-    webgl_uvs_buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, webgl_uvs_buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvBuffer), gl.STATIC_DRAW);
-    gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, 3, gl.FLOAT, false, 0, 0);
 
     webgl_texture_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, webgl_texture_buffer);

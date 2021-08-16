@@ -21,8 +21,12 @@
 
         void main(void) {
             
-            vec3 lightDirection= normalize(uLightPosition - vec3(vWorldPosition));
-        
+            vec3 lightPuntual= normalize(uLightPosition - vec3(vWorldPosition));
+            
+            vec3 lightDireccional= normalize(uLightPosition);
+
+            vec3 lightTotal= normalize(lightPuntual + lightDireccional);
+
             vec3 worldNormal = normalize(vWorldNormal.xyz);
             vec3 eyeToSurfaceDir = normalize(vWorldPosition - vCameraPosition.xyz);
             vec3 direction = reflect(eyeToSurfaceDir,worldNormal);
@@ -40,12 +44,12 @@
 
             if (withTexture) {
                 if (withReflect) {
-                    color=(uAmbientColor+0.75*uDirectionalColor*max(dot(worldNormal.xyz,lightDirection), 0.0))*textureColorReflect.xyz;
+                    color=(uAmbientColor+0.3*uDirectionalColor*max(dot(worldNormal.xyz,lightPuntual), 0.0)+0.4*uDirectionalColor*max(dot(worldNormal.xyz,lightDireccional), 0.0))*textureColorReflect.xyz;
                 } else {
-                    color=(uAmbientColor+0.75*uDirectionalColor*max(dot(worldNormal.xyz,lightDirection), 0.0))*textureColor.xyz;
+                    color=(uAmbientColor+0.3*uDirectionalColor*max(dot(worldNormal.xyz,lightPuntual), 0.0)+0.4*uDirectionalColor*max(dot(worldNormal.xyz,lightDireccional), 0.0))*textureColor.xyz;
                 }
             } else {
-                color=(uAmbientColor+0.75*uDirectionalColor*max(dot(worldNormal.xyz,lightDirection), 0.0))*colorTexture.xyz;
+                color=(uAmbientColor+0.3*uDirectionalColor*max(dot(worldNormal.xyz,lightPuntual), 0.0)+0.4*uDirectionalColor*max(dot(worldNormal.xyz,lightDireccional), 0.0))*colorTexture.xyz;
             }
 
             if (uUseLighting)
