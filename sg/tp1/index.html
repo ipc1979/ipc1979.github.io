@@ -9,6 +9,8 @@
     <script src="formas.js"></script>
     <script src="curvas.js"></script>
     <script src="objetos-escena.js"></script>
+    <script type="text/javascript" src="droneCamera.js"></script>
+
     <style>
         html{
             height: 100%;
@@ -90,7 +92,9 @@
         var texturesCubemap=[];
 
         var puntosControlEdificioTramo1 ; 
-        var puntosControlEdificioTramo2 ;        
+        var puntosControlEdificioTramo2 ;   
+        
+        let droneCam=new DroneCameraControl([0,0,10]);
 
         var lightx = 20 ;
         var lighty = 20 ;
@@ -383,10 +387,10 @@
 
         document.addEventListener('mousemove', e => {
             if ( click && orbital ) {
-                if ( 0.1*e.y < 0.1 ) alturaCamara = 0.1 ;
-                else if ( 0.1*e.y > 60 ) alturaCamara = 60 ;
-                else alturaCamara = 0.1*e.y ;
-                angulo = 0.01*e.x ;
+                //if ( 0.1*e.y < 0.1 ) alturaCamara = 0.1 ;
+                //else if ( 0.1*e.y > 60 ) alturaCamara = 60 ;
+                //else alturaCamara = 0.1*e.y ;
+                angulo = 0.01*e.y + 0.01*e.x ;
             }
         });
 
@@ -504,8 +508,11 @@
   
             limpiaSuperficies();          
 
+            //matrizVista=droneCam.getViewMatrix();
+
             requestAnimFrame(tick);
             time+=1/30;
+            //droneCam.update();
             drawScene();    
 
             var matrizModeladoMundo = mat4.create();
