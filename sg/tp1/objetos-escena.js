@@ -56,17 +56,17 @@ function Grua(matrizGrua) {
     mat4.rotate(matrizModeladoGruaCabina, matrizModeladoGruaCabina,Math.PI*rotarCabina,[0,0,1]); 
     matrizModelado = matrizModeladoGruaCabina;
     setMatrixUniforms();
-    generarSuperficieCubov3(4,3,textures[0]);
+    generarSuperficieCubov4(4,3,textures[0]);
 
     matrizModeladoGruaTrapecioDer = mat4.create();
-    mat4.translate(matrizModeladoGruaTrapecioDer, matrizModeladoGruaCabina,[0.5,-1,3]);
+    mat4.translate(matrizModeladoGruaTrapecioDer, matrizModeladoGruaCabina,[0.5,0,3]);
     mat4.scale(matrizModeladoGruaTrapecioDer, matrizModeladoGruaTrapecioDer,[0.25,1,2]); 
     matrizModelado = matrizModeladoGruaTrapecioDer;
     setMatrixUniforms();
     dibujarGeometria("trapecio");
 
     matrizModeladoGruaTrapecioIzq = mat4.create();
-    mat4.translate(matrizModeladoGruaTrapecioIzq, matrizModeladoGruaCabina,[-0.5,-1,3]);
+    mat4.translate(matrizModeladoGruaTrapecioIzq, matrizModeladoGruaCabina,[-0.5,0,3]);
     mat4.scale(matrizModeladoGruaTrapecioIzq, matrizModeladoGruaTrapecioIzq,[0.25,1,2]); 
     matrizModelado = matrizModeladoGruaTrapecioIzq;
     setMatrixUniforms();

@@ -823,6 +823,152 @@ function generarSuperficieCubov3(lado,alto,textura){
     gl.drawElements(gl.TRIANGLE_STRIP, indexBuffer.length, gl.UNSIGNED_SHORT, 0);
 }
 
+function generarSuperficieCubov4(lado,alto,textura){
+
+
+    escala = 0.2 ;
+    positionBuffer = [
+        // 1
+        -0.5*lado,   -0.5*lado,   alto, //0
+        0.5*lado,    -0.5*lado,   alto, //1
+        0.5*lado,    0.5*lado,    alto, //2
+        -0.5*lado,   0.5*lado,    alto, //3
+        -0.5*lado,   -0.5*lado,   0, //4
+        0.5*lado,    -0.5*lado,   0, //5
+        0.5*lado,    0.5*lado,    0, //6
+        -0.5*lado,   0.5*lado,    0, //7
+
+        // 2
+        -0.5*lado,   -0.5*lado,   alto, //8      0  
+        0.5*lado,    -0.5*lado,   alto, //9      1
+        0.5*lado,    0.5*lado,    alto, //10     2    
+        -0.5*lado,   0.5*lado,    alto, //11     3
+        -0.5*lado,   -0.5*lado,   0, //12     4
+        0.5*lado,    -0.5*lado,   0, //13     5    
+        0.5*lado,    0.5*lado,    0, //14     6
+        -0.5*lado,   0.5*lado,    0, //15     7
+
+        // 3
+        -0.5*lado,   -0.5*lado,   alto, //16     0
+        0.5*lado,    -0.5*lado,   alto, //17     1
+        0.5*lado,    0.5*lado,    alto, //18     2
+        -0.5*lado,   0.5*lado,    alto, //19     3
+        -0.5*lado,   -0.5*lado,   0, //20     4
+        0.5*lado,    -0.5*lado,   0, //21     5
+        0.5*lado,    0.5*lado,    0, //22     6
+        -0.5*lado,   0.5*lado,    0, //23     7
+
+    ];
+
+    // Buffer de indices de los triángulos 
+    indexBuffer=[
+        7,  6,  2,    7,  2,  3,     // frente
+        4,  5,  1,    4,  1,  0,     // atrás
+        14, 13, 9,    14,  9, 10,    // derecha
+        15, 12, 8,    15,  8, 11,    // izquierda
+        19, 18, 17,   19,  17, 16,   // arriba
+        23, 22, 21,   23,  21, 20    // abajo
+    ];  
+
+    normalBuffer = [
+        // 1
+        0.0,  -1.0, 0.0,   //0 a
+        0.0,  -1.0, 0.0,   //1 a
+        0.0,  1.0,  0.0,   //2 f
+        0.0,  1.0,  0.0,   //3 f
+        0.0,  -1.0, 0.0,   //4 a
+        0.0,  -1.0, 0.0,   //5 a
+        0.0,  1.0,  0.0,   //6 f
+        0.0,  1.0,  0.0,   //7 f
+      
+        // 2
+        -1.0,  0.0, 0.0,   //0 i
+        1.0,  0.0, 0.0,    //1 d
+        1.0,  0.0, 0.0,    //2 d
+        -1.0,  0.0, 0.0,   //3 i
+        -1.0,  0.0, 0.0,   //4 i
+        1.0,  0.0, 0.0,    //5 d
+        1.0,  0.0, 0.0,    //6 d
+        -1.0,  0.0, 0.0,   //7 i
+
+        // 2
+        0.0,  0.0, 1.0,    //0 a
+        0.0,  0.0, 1.0,    //1 a
+        0.0,  0.0, 1.0,    //2 a
+        0.0,  0.0, 1.0,    //3 a
+        0.0,  0.0, -1.0,   //4 ab
+        0.0,  0.0, -1.0,   //5 ab
+        0.0,  0.0, -1.0,   //6 ab
+        0.0,  0.0, -1.0,   //7 ab
+    ];
+    
+    textureBuffer = [
+        // adelante atras
+        escala*lado,escala*alto,//0
+        0.0,escala*alto,//1
+        escala*lado,escala*alto,//2
+        0.0,escala*alto,//3
+        escala*lado,0.0,//4
+        0.0,0.0,//5
+        escala*lado,0.0,//6
+        0.0,0.0,//7
+
+        // derecha izquierda
+        escala*lado,escala*alto,//0
+        0.0,escala*alto,//1
+        escala*lado,escala*alto,//2
+        0.0,escala*alto,//3
+        escala*lado,0.0,//4
+        0.0,0.0,//5
+        escala*lado,0.0,//6
+        0.0,0.0,//7
+
+        // arriba abajo
+        0.0,1.0,//16 0
+        1.0,1.0,//17 1
+        1.0,0.0,//18 2
+        0.0,0.0,//19 3
+        0.0,1.0,//20 4
+        1.0,1.0,//21 5
+        1.0,0.0,//22 6
+        0.0,0.0,//23 7
+    ];
+
+    // Creación e Inicialización de los buffers
+    webgl_position_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, webgl_position_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positionBuffer), gl.STATIC_DRAW);
+    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+    // Creación e Inicialización de los buffers
+    webgl_normal_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, webgl_normal_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normalBuffer), gl.STATIC_DRAW);
+    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+
+    webgl_texture_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, webgl_texture_buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureBuffer), gl.STATIC_DRAW);
+    webgl_texture_buffer.itemSize = 2;
+    webgl_texture_buffer.numItems = textureBuffer.length / 2;
+    gl.bindBuffer(gl.ARRAY_BUFFER, webgl_texture_buffer);
+    gl.vertexAttribPointer(shaderProgram.textureCoordAttributeText, webgl_texture_buffer.itemSize, gl.FLOAT, false, 0, 0);
+
+    // Creación e Inicialización de los buffers
+    webgl_index_buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, webgl_index_buffer);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indexBuffer), gl.STATIC_DRAW);
+
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, textura);
+    gl.uniform1i(shaderProgram.samplerUniform, 0);
+    
+    gl.uniform1i(shaderProgram.withTexture,true);
+    gl.uniform1i(shaderProgram.withReflect,false);
+    gl.uniform1i(shaderProgram.useLightingUniform,(lighting=="true"));
+
+    gl.drawElements(gl.TRIANGLE_STRIP, indexBuffer.length, gl.UNSIGNED_SHORT, 0);
+}
 
 
 function generarSuperficieTrapecio(color){
